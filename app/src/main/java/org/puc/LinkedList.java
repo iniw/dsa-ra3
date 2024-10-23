@@ -21,7 +21,7 @@ public class LinkedList {
         return last;
     }
 
-    public boolean is_empty() {
+    public boolean isEmpty() {
         return head == null;
     }
 }
