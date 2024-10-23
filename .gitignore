@@ -6,6 +6,8 @@
 **/build/
 !src/**/build/
 
+**/bin/
+
 gradle-app.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
