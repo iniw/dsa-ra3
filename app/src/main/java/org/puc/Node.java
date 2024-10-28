@@ -2,12 +2,18 @@
 package org.puc;
 
 public class Node {
-    int key;
-    int value;
+    Entry entry;
     Node next;
 
-    Node(int key, int value) {
-        this.key = key;
-        this.value = value;
+    Node(Entry entry) {
+        this.entry = entry;
+    }
+
+    int key() {
+        return entry.code();
+    }
+
+    int value() {
+        return entry.value();
     }
 }

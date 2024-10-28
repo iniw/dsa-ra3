@@ -12,7 +12,7 @@ public class LinkedList {
         }
     }
 
-    Node pop() throws Exception {
+    Node pop_front() throws Exception {
         if (head == null)
             throw new Exception("Cannot pop an empty queue.");
 

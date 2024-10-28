@@ -3,24 +3,41 @@ package org.puc;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Random;
+
 class LinkedListTest {
     @Test
     void test() {
         var linkedList = new LinkedList();
         assertEquals(linkedList.isEmpty(), true);
 
-        linkedList.push(new Node(0, 1));
-        assertEquals(linkedList.isEmpty(), false);
+        var numItems = 1000;
 
-        linkedList.push(new Node(0, 1));
-        assertEquals(linkedList.isEmpty(), false);
+        var rand = new Random();
+        for (int run = 0; run < numItems; run++) {
+            assertEquals(linkedList.isEmpty(), true);
 
-        assertDoesNotThrow(() -> linkedList.pop());
-        assertEquals(linkedList.isEmpty(), false);
+            var codes = new int[] { rand.nextInt(), rand.nextInt() };
+            var values = new int[] { rand.nextInt(), rand.nextInt() };
 
-        assertDoesNotThrow(() -> linkedList.pop());
-        assertEquals(linkedList.isEmpty(), true);
+            linkedList.push(new Node(new Entry(codes[0], values[0])));
+            linkedList.push(new Node(new Entry(codes[1], values[1])));
 
-        assertThrows(Exception.class, () -> linkedList.pop());
+            assertEquals(linkedList.isEmpty(), false);
+
+            assertDoesNotThrow(() -> {
+                var node = linkedList.pop_front();
+                assertEquals(node.entry.code(), codes[0]);
+                assertEquals(node.entry.value(), values[0]);
+
+                node = linkedList.pop_front();
+                assertEquals(node.entry.code(), codes[1]);
+                assertEquals(node.entry.value(), values[1]);
+            });
+
+            assertEquals(linkedList.isEmpty(), true);
+        }
+
+        assertThrows(Exception.class, () -> linkedList.pop_front());
     }
 }

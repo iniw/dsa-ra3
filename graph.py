@@ -1,78 +1,78 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 import pathlib
 import argparse
-from matplotlib.backends.backend_pdf import PdfPages
+import locale
 
 # Set plot aesthetics
 sns.set_theme(style="whitegrid")
 
 
-# Generate a summary of collisions across different hashers, bucket sizes, and runs
-def plot_collisions_by_hasher(data, pdf_pages):
-    plt.figure(figsize=(16, 10))
-    sns.barplot(
-        data=data,
-        x="Hasher",
-        y="Collisions",
-        hue="BucketSize",
-        errorbar=None,
-        estimator=sum,
-    )
-    plt.title("Total Collisions per Hasher with Different Bucket Sizes")
-    plt.xlabel("Hasher (0 = Mod, 1 = Fractional, 2 = Multiplicative)")
-    plt.ylabel("Total Collisions")
-    plt.legend(title="Bucket Size", loc="upper right")
-    plt.tight_layout()
-    pdf_pages.savefig()
+# Plot insertion runtime with dataset and bucket size details
+def plot_insertion_runtime(data, output_path: pathlib.Path):
+    for bucket_size in data["BucketSize"].unique():
+        subset = data[data["BucketSize"] == bucket_size]
+
+        plt.figure(figsize=(10, 10))
+
+        sns.barplot(
+            data=subset,
+            x="Hasher",
+            y="InsertionRuntime",
+            hue="DatasetSize",
+            errorbar=None,
+        )
+        plt.title(f"Tempo de inserção (vetor com tamanho {bucket_size})")
+        plt.legend(title="Quantidade de registros")
+
+        plt.xlabel("Hasher")
+        plt.ylabel("Tempo (ms)")
+
+        plt.tight_layout()
+        plt.savefig(output_path / f"insertion_runtime_{bucket_size}.png", dpi=300)
+        plt.close()
 
 
-# Plot collisions per bucket index for each hasher
-def plot_collisions_distribution(data, pdf_pages):
-    plt.figure(figsize=(14, 8))
-    sns.lineplot(
-        data=data,
-        x="DatasetSize",
-        y="Collisions",
-        hue="Hasher",
-        style="BucketSize",
-        markers=True,
-        errorbar=None,
-    )
-    plt.title("Collision Trends by Dataset Size and Hasher")
-    plt.xlabel("Dataset Size")
-    plt.ylabel("Total Collisions")
-    plt.legend(title="Hasher and Bucket Size")
-    plt.tight_layout()
-    pdf_pages.savefig()
+# Plot lookup runtime with dataset and bucket size details
+def plot_lookup_runtime(data, output_path: pathlib.Path):
+    for bucket_size in data["BucketSize"].unique():
+        subset = data[data["BucketSize"] == bucket_size]
+
+        plt.figure(figsize=(10, 10))
+
+        sns.barplot(
+            data=subset,
+            x="Hasher",
+            y="LookupRuntime",
+            hue="DatasetSize",
+            errorbar=None,
+        )
+        plt.title(f"Tempo de busca (vetor com tamanho {bucket_size})")
+        plt.legend(title="Quantidade de registros")
+
+        plt.xlabel("Hasher")
+        plt.ylabel("Tempo (ms)")
+
+        plt.tight_layout()
+        plt.savefig(output_path / f"lookup_runtime_{bucket_size}.png", dpi=300)
+        plt.close()
 
 
-# Plot heatmap of collisions by hasher and run
-def plot_runtime(data, pdf_pages):
-    plt.figure(figsize=(16, 10))
-    sns.barplot(data=data, x="Hasher", y="Runtime", hue="BucketSize", errorbar=None)
-    plt.title("Comparação de tempo de execução de cada hasher")
-    plt.xlabel("Hasher (0 = Simples, 1 = Fracional, 2 = Multiplicativo)")
-    plt.ylabel("Runtime (ms)")
-    plt.legend(title="Tamanho do bucket", loc="upper right")
-    plt.tight_layout()
-    pdf_pages.savefig()
-
-
-def generate_graphs(csv_file: pathlib.Path, output_pdf: pathlib.Path):
+def generate_graphs(csv_file: pathlib.Path, output_path: pathlib.Path):
     data = pd.read_csv(csv_file)
     if data.empty:
         raise ValueError(
             f"The CSV file at {csv_file} is empty. Please check the Java code."
         )
 
-    # Open a PdfPages object to save multiple plots in one PDF
-    with PdfPages(output_pdf) as pdf_pages:
-        # Generate all required plots
-        plot_collisions_by_hasher(data, pdf_pages)
-        plot_collisions_distribution(data, pdf_pages)
-        plot_runtime(data, pdf_pages)
+    # Ensure that the output path exists
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Generate all required plots
+    plot_insertion_runtime(data, output_path)
+    plot_lookup_runtime(data, output_path)
 
 
 if __name__ == "__main__":
@@ -82,15 +82,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "csv_file",
         type=pathlib.Path,
-        help="The path to the CSV file containing hash collision data.",
+        help="The path to the CSV file containing the sampled data.",
     )
     parser.add_argument(
-        "--output_pdf",
+        "output_path",
         type=pathlib.Path,
-        default="collision_graphs.pdf",
-        help="The path to the output PDF file (default: collision_graphs.pdf).",
+        help="The path that the generated PNGs will be saved to.",
     )
-
     args = parser.parse_args()
 
-    generate_graphs(args.csv_file, args.output_pdf)
+    generate_graphs(args.csv_file, args.output_path)
