@@ -1,13 +1,15 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
 import pathlib
 import argparse
-import locale
 
-# Set plot aesthetics
 sns.set_theme(style="whitegrid")
+
+
+def add_labels(ax):
+    for container in ax.containers:
+        ax.bar_label(container, label_type="edge", padding=3)
 
 
 # Plot insertion runtime with dataset and bucket size details
@@ -17,18 +19,20 @@ def plot_insertion_runtime(data, output_path: pathlib.Path):
 
         plt.figure(figsize=(10, 10))
 
-        sns.barplot(
+        ax = sns.barplot(
             data=subset,
             x="Hasher",
             y="InsertionRuntime",
             hue="DatasetSize",
             errorbar=None,
         )
-        plt.title(f"Tempo de inserção (vetor com tamanho {bucket_size})")
+        plt.title("Tempo de inserção")
         plt.legend(title="Quantidade de registros")
 
-        plt.xlabel("Hasher")
+        plt.xlabel("Função de Hash")
         plt.ylabel("Tempo (ms)")
+
+        add_labels(ax)
 
         plt.tight_layout()
         plt.savefig(output_path / f"insertion_runtime_{bucket_size}.png", dpi=300)
@@ -42,18 +46,20 @@ def plot_lookup_runtime(data, output_path: pathlib.Path):
 
         plt.figure(figsize=(10, 10))
 
-        sns.barplot(
+        ax = sns.barplot(
             data=subset,
             x="Hasher",
             y="LookupRuntime",
             hue="DatasetSize",
             errorbar=None,
         )
-        plt.title(f"Tempo de busca (vetor com tamanho {bucket_size})")
+        plt.title("Tempo de busca")
         plt.legend(title="Quantidade de registros")
 
-        plt.xlabel("Hasher")
+        plt.xlabel("Função de Hash")
         plt.ylabel("Tempo (ms)")
+
+        add_labels(ax)
 
         plt.tight_layout()
         plt.savefig(output_path / f"lookup_runtime_{bucket_size}.png", dpi=300)

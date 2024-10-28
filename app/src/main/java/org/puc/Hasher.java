@@ -29,7 +29,7 @@ interface Hasher {
             }
 
             public String name() {
-                return "Fracional";
+                return "Multiplicativo";
             }
         };
     }
@@ -45,7 +45,7 @@ interface Hasher {
             }
 
             public String name() {
-                return "Multiplicativo";
+                return "Multiplicativo fracional";
             }
         };
     }

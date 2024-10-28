@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.Random;
 
 public class App {
-    public static final int[] BUCKET_SIZES = { 10_000, 100_000, 1_000_000 };
+    public static final int[] BUCKET_SIZES = { 100_000, 500_000, 1_000_000 };
 
-    public static final int[] DATASET_SIZES = { 500_000, 1_000_000, 2_000_000, };
+    public static final int[] DATASET_SIZES = { 1_000_000, 5_000_000, 20_000_000, };
 
     public static final Hasher[] HASHERS = {
             Hasher.modHasher(),
