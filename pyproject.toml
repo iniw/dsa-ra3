@@ -1,8 +1,7 @@
 [project]
 name = "ra3"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "Gerador de gráficos para análise de diferentes funções hash."
 requires-python = ">=3.12"
 dependencies = [
     "matplotlib>=3.9.2",
