@@ -1,19 +1,13 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import pathlib
+from pathlib import Path
 import argparse
 
 sns.set_theme(style="whitegrid")
 
 
-def add_labels(ax):
-    for container in ax.containers:
-        ax.bar_label(container, label_type="edge", padding=3)
-
-
-# Plot insertion runtime with dataset and bucket size details
-def plot_insertion_runtime(data, output_path: pathlib.Path):
+def plot(data, output_path: Path, yaxis: str, title: str):
     for bucket_size in data["BucketSize"].unique():
         subset = data[data["BucketSize"] == bucket_size]
 
@@ -22,51 +16,25 @@ def plot_insertion_runtime(data, output_path: pathlib.Path):
         ax = sns.barplot(
             data=subset,
             x="Hasher",
-            y="InsertionRuntime",
+            y=yaxis,
             hue="DatasetSize",
             errorbar=None,
         )
-        plt.title("Tempo de inserção")
+        plt.title(title)
         plt.legend(title="Quantidade de registros")
 
         plt.xlabel("Função de Hash")
         plt.ylabel("Tempo (ms)")
 
-        add_labels(ax)
+        for container in ax.containers:
+            ax.bar_label(container, label_type="edge", padding=3)  # type: ignore
 
         plt.tight_layout()
-        plt.savefig(output_path / f"insertion_runtime_{bucket_size}.png", dpi=300)
+        plt.savefig(output_path / f"{yaxis}_{bucket_size}.png", dpi=300)
         plt.close()
 
 
-# Plot lookup runtime with dataset and bucket size details
-def plot_lookup_runtime(data, output_path: pathlib.Path):
-    for bucket_size in data["BucketSize"].unique():
-        subset = data[data["BucketSize"] == bucket_size]
-
-        plt.figure(figsize=(10, 10))
-
-        ax = sns.barplot(
-            data=subset,
-            x="Hasher",
-            y="LookupRuntime",
-            hue="DatasetSize",
-            errorbar=None,
-        )
-        plt.title("Tempo de busca")
-        plt.legend(title="Quantidade de registros")
-
-        plt.xlabel("Função de Hash")
-        plt.ylabel("Tempo (ms)")
-
-        add_labels(ax)
-
-        plt.tight_layout()
-        plt.savefig(output_path / f"lookup_runtime_{bucket_size}.png", dpi=300)
-        plt.close()
-
-
-def generate_graphs(csv_file: pathlib.Path, output_path: pathlib.Path):
+def generate_graphs(csv_file: Path, output_path: Path):
     data = pd.read_csv(csv_file)
     if data.empty:
         raise ValueError(
@@ -76,9 +44,8 @@ def generate_graphs(csv_file: pathlib.Path, output_path: pathlib.Path):
     # Ensure that the output path exists
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # Generate all required plots
-    plot_insertion_runtime(data, output_path)
-    plot_lookup_runtime(data, output_path)
+    plot(data, output_path, "InsertionRuntime", "Tempo de inserção")
+    plot(data, output_path, "LookupRuntime", "Tempo de busca")
 
 
 if __name__ == "__main__":
@@ -87,12 +54,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "csv_file",
-        type=pathlib.Path,
+        type=Path,
         help="The path to the CSV file containing the sampled data.",
     )
     parser.add_argument(
         "output_path",
-        type=pathlib.Path,
+        type=Path,
         help="The path that the generated PNGs will be saved to.",
     )
     args = parser.parse_args()
